@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Assumes a DAG is passed in with a set of roots. This is guaranteed
@@ -19,7 +18,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 // TODO replace this with stream once Java 1.8 is out
 public class BreadthFirstTraversal {
     public <Data, NodeWrapper extends Node<Data, NodeWrapper>, State> void traverse(Set<NodeWrapper> roots, Collector<NodeWrapper, State> collector, State state) {
-        Queue<NodeWrapper> queue = new ConcurrentLinkedQueue<NodeWrapper>();
+        Queue<NodeWrapper> queue = new LinkedList<NodeWrapper>();
         queue.addAll(roots);
         Set<NodeWrapper> visited = new HashSet<NodeWrapper>();
         while (!queue.isEmpty()) {
