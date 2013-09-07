@@ -2,9 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package inc.overlord.graph;
+package inc.overlord.graph.dag;
 
-import inc.overlord.common.interfaces.Transformer;
+import inc.overlord.common.Transformer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;

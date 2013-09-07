@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package inc.overlord.graph;
+package inc.overlord.graph.dag;
 
+import inc.overlord.graph.dag.KeyedNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
