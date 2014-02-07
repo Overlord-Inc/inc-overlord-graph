@@ -4,7 +4,7 @@
  */
 package inc.overlord.graph;
 
-import inc.overlord.common.interfaces.Collector;
+import inc.overlord.common.Collector;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;

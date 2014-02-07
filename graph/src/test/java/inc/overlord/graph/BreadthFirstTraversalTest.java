@@ -9,7 +9,7 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import inc.overlord.common.interfaces.Collector;
+import inc.overlord.common.Collector;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;

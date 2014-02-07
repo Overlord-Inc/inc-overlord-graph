@@ -4,7 +4,7 @@
  */
 package inc.overlord.graph;
 
-import inc.overlord.common.interfaces.Transformer;
+import inc.overlord.common.Transformer;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
