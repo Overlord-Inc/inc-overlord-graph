@@ -9,11 +9,9 @@ import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-import inc.overlord.common.Collector;
 import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import org.junit.Test;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -24,23 +22,21 @@ import org.mockito.Mock;
  */
 public class BreadthFirstTraversalTest {
     @Mock
-    Collector<StringNode, List<StringNode>> collector;
+    Consumer<StringNode> consumer;
     BreadthFirstTraversal traversal;
-    List<StringNode> nodeList;
 
     @Before
     public void initialize() {
         initMocks(this);
-        nodeList = new LinkedList();
-        traversal = new BreadthFirstTraversal();
     }
 
     @Test
     public void testTrivial() {
         StringNode node = new StringNode("1");
         Set<StringNode> graph = Collections.singleton(node);
-        traversal.traverse(graph, collector, nodeList);
-        verify(collector).collect(eq(node), eq(nodeList));
+        traversal = new BreadthFirstTraversal(graph);
+        traversal.forEachRemaining(consumer);
+        verify(consumer).accept(eq(node));
     }
 
     /**
@@ -55,11 +51,12 @@ public class BreadthFirstTraversalTest {
         node2.addChild(node4);
         node3.addChild(node4);
         Set<StringNode> roots = Collections.singleton(node1);
-        traversal.traverse(roots, collector, nodeList);
-        verify(collector).collect(eq(node1), eq(nodeList));
-        verify(collector).collect(eq(node2), eq(nodeList));
-        verify(collector).collect(eq(node3), eq(nodeList));
-        verify(collector).collect(eq(node4), eq(nodeList));
+        traversal = new BreadthFirstTraversal(roots);
+        traversal.forEachRemaining(consumer);
+        verify(consumer).accept(eq(node1));
+        verify(consumer).accept(eq(node2));
+        verify(consumer).accept(eq(node3));
+        verify(consumer).accept(eq(node4));
     }
 
 }
