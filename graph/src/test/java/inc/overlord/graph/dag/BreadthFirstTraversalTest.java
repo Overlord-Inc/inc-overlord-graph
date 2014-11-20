@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package inc.overlord.graph;
+package inc.overlord.graph.dag;
 
+import inc.overlord.graph.dag.BreadthFirstTraversal;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;

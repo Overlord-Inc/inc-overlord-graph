@@ -2,14 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package inc.overlord.graph;
+package inc.overlord.graph.dag;
 
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collector;
-import lombok.Data;
 
 /**
  * Assumes a DAG, and inverts it. Leaves become roots, roots become
