@@ -4,65 +4,75 @@
  */
 package inc.overlord.graph.dag;
 
-import inc.overlord.common.Transformer;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 /**
- *
+ * Takes a set of serialized nodes with the keys to their child nodes. These
+ * keys are looked up, and used to complete the graph. This can be used to
+ * deserialize a set of in memory objects (as long as they all have keys).
+ * 
  * @author Anand Chelian <achelian@yahoo.com>
  */
-public class BuildGraph<Data, Key, NodeWrapper extends KeyedNode<Data, Key, NodeWrapper>> implements Transformer<Set<NodeWrapper>, Set<NodeWrapper>> {
+public class BuildGraph<D, K extends Serializable, N extends KeyedNode<D, K, N>> implements Function<Set<N>, Set<N>> {
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Set<NodeWrapper> transform(Set<NodeWrapper> nodes) {
-        // all items are mapped from their key to the instance
-        Map<Key, NodeWrapper> keyToNodeMap = new HashMap<Key, NodeWrapper>();
-        // keep track of all references, it will be used at the end
-        Map<Key, Set<NodeWrapper>> references = new HashMap<Key, Set<NodeWrapper>>(nodes.size());
-        for (NodeWrapper node: nodes) {
-            Key key = node.getKey();
-            keyToNodeMap.put(key, node);
-            // any previous references get replaced with the actual
-            // instances, any further references will be looked up
-            // in the keyToNodeMap
-            Set<NodeWrapper> previousParents = references.get(key);
-            for (NodeWrapper parent: previousParents) {
-                parent.children.add(node);
-            }
-            // for each child, get it from the keyToNodeMap, or presume
-            // that when the node traversal gets to the node, it will
-            // have the back reference from the references
-            Set<Key> childKeys = node.getChildKeys();
-            Set<NodeWrapper> children = new HashSet<NodeWrapper>(childKeys.size());
-            for (Key childKey: node.getChildKeys()) {
-                NodeWrapper childNode = keyToNodeMap.get(childKey);
-                if (childNode != null) {
-                    children.add(childNode);
-                }
-                Set<NodeWrapper> parents = references.get(key);
-                if (parents == null) {
-                    parents = new HashSet<NodeWrapper>();
-                    references.put(key, parents);
-                }
-                parents.add(node);
-            }
-            node.children = children;
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Set<N> apply(Set<N> nodes) {
+    // all items are mapped from their key to the instance
+    Map<K, N> keyToNodeMap = new HashMap<>();
+    // keep track of all references, it will be used at the end
+    Map<K, Set<N>> references = new HashMap<>(nodes.size());
+    for (N node : nodes) {
+      K key = node.getKey();
+      keyToNodeMap.put(key, node);
+      // any previous references get replaced with the actual
+      // instances, any further references will be looked up
+      // in the keyToNodeMap
+      Set<N> previousParents = references.get(key);
+      if (previousParents != null) {
+        for (N parent : previousParents) {
+          parent.children.add(node);
         }
-        // anything with no references to it is a root, logically,
-        // removing everything that has a reference from the total set of
-        // keys will leave only keys that have no references to them
-        Set<Key> keys = new HashSet<Key>(keyToNodeMap.keySet());
-        keys.removeAll(references.keySet());
-        Set<NodeWrapper> roots = new HashSet<NodeWrapper>(keys.size());
-        for (Key rootKey: keys) {
-            roots.add(keyToNodeMap.get(rootKey));
+      }
+      // invert the references, go from referred key to referring node,
+      // this will be resolved in one sweep later
+      Set<K> childKeys = node.getChildKeys();
+      if (childKeys != null) {
+        Set<N> children = new HashSet<>(childKeys.size());
+        for (K childKey : node.getChildKeys()) {
+          Set<N> parents = references.get(childKey);
+          if (parents == null) {
+            parents = new HashSet<>();
+            references.put(childKey, parents);
+          }
+          parents.add(node);
         }
-        return roots;
+        node.children = children;
+      }
     }
+    // resolve all references
+    references.forEach((key, nodeSet) -> {
+      N referenced = keyToNodeMap.get(key);
+      nodeSet.forEach((referringNode) -> {
+        referringNode.addChild(referenced);
+      });
+    });
+    // anything with no references to it is a root, logically,
+    // removing everything that has a reference from the total set of
+    // keys will leave only keys that have no references to them
+    Set<K> keys = new HashSet<>(keyToNodeMap.keySet());
+    keys.removeAll(references.keySet());
+    Set<N> roots = new HashSet<>(keys.size());
+    for (K rootKey : keys) {
+      roots.add(keyToNodeMap.get(rootKey));
+    }
+    return roots;
+  }
 }
